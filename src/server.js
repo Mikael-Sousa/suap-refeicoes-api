@@ -1,5 +1,5 @@
-const express = require('express')
-const bot = require('./bot')
+const express = require("express")
+const bot = require("./bot")
 const dotenv = require("dotenv");
 
 const app = express()
@@ -8,7 +8,7 @@ app.use(express.json());
 dotenv.config();
 const PORT = process.env.PORT;
 
-app.post("/bot", async (req, res) => {
+app.post("/bot", async (_req, res) => {
     try {
     const result = await bot();
     res.status(200).json({ message: "Bot executado com sucesso", result });
