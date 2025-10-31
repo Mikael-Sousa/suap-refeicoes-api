@@ -8,7 +8,7 @@ const url = "https://suap.ifpi.edu.br/accounts/login/?next=/";
 
 const bot = async () => {
   const browser = await puppeteer.launch({
-    headless: false,
+    headless: true,
   });
 
   try {
@@ -43,52 +43,46 @@ const bot = async () => {
       { visible: true }
     );
 
-    await page.$eval(
-      'li.has-child > a[title="Restaurante Institucional"]',
-      (el) =>
-        el.scrollIntoView(
-          { behavior: "smooth", block: "center" },
-          { visible: true }
-        )
-    );
-
-    await page.click('li.has-child > a[title="Restaurante Institucional"]');
-
-    await page.waitForSelector(
-      'ul > li#menu-item-atividadesestudantis_restauranteinstitucional_reservarrefeições > a[title="Reservar Refeições"]',
-      { visible: true }
-    );
-
-    await page.$eval(
-      'li#menu-item-atividadesestudantis_restauranteinstitucional_reservarrefeições > a[title="Reservar Refeições"]',
-      (el) =>
-        el.scrollIntoView(
-          { behavior: "smooth", block: "center" },
-          { visible: true }
-        )
-    );
-
-    await page.click(
-      'li#menu-item-atividadesestudantis_restauranteinstitucional_reservarrefeições > a[title="Reservar Refeições"]'
-    );
-
-    await page.waitForSelector(".card-container > div:last-child", {
+    const restLinkSelector =
+      'li.has-child > a[title="Restaurante Institucional"]';
+    const restLink = await page.waitForSelector(restLinkSelector, {
       visible: true,
     });
-    const mainDiv = await page.$(".card-container > div:last-child");
+    await restLink.evaluate((el) =>
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+    );
+    await restLink.click();
 
-    await page.evaluate((el) => {
-      const link = el.querySelector("ul > li > a");
-      if (link) link.scrollIntoView({ behavior: "smooth", block: "center" });
+    const reservarSelector =
+      'li#menu-item-atividadesestudantis_restauranteinstitucional_reservarrefeições > a[title="Reservar Refeições"]';
+    const reservarLink = await page.waitForSelector(reservarSelector, {
+      visible: true,
+    });
+    await reservarLink.evaluate((el) =>
+      el.scrollIntoView({ behavior: "smooth", block: "center" })
+    );
+    await reservarLink.click();
+
+    const cardSelector = ".card-container > div:first-child ul > li > a";
+    await page.waitForSelector(cardSelector, { visible: true });
+    await page.evaluate((selector) => {
+      const link = document.querySelector(selector);
       if (link) link.click();
-    }, mainDiv);
+    }, cardSelector);
+
+    const feedbackSelector = "#feedback_message";
+    await page.waitForSelector(feedbackSelector, { visible: true });
+    const message = await page.$eval(feedbackSelector, (el) =>
+      el.textContent.trim()
+    );
+
+    return message;
   } catch (err) {
     console.error("Erro no bot:", err.message);
     throw err;
   } finally {
-    //Manter desativado durante a fase de teste
-    //await browser.close();
+    await browser.close();
   }
 };
 
-bot();
+module.exports = bot;
