@@ -19,7 +19,7 @@ O sistema faz login automaticamente com suas credenciais do SUAP e realiza as re
 1. Clone o repositório:
 
    ```bash
-   git clone https://github.com/seu-usuario/suap-bot-api.git
+   git clone https://github.com/Mikael-Sousa/suap-refeicoes-api
    cd suap-bot-api
    ```
 
